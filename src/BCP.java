@@ -5,10 +5,9 @@ public class BCP {
     private String[] comandos;
     private final String nome;
 
-    public BCP(String nome, String[] comandos, Registrador[] registradores) {
+    public BCP(String nome, String[] comandos) {
         this.nome = nome;
         this.comandos = comandos;
-        this.registradores = registradores;
     }
 
     public String getNome() {
