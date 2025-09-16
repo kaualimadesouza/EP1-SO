@@ -15,7 +15,6 @@ public class BCP {
     public String getNome() {
         return this.nome;
     }
-
     @Override
     public String toString() {
         return "BCP{" +
