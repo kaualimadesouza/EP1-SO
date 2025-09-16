@@ -6,7 +6,19 @@ public class TabelaProcessos {
 
     public TabelaProcessos() {}
 
-    public void add(BCP processo) {
+    public boolean isEmpty() {
+        return tabela.isEmpty();
+    }
+
+    public Boolean existe(BCP processo) {
+        return tabela.containsKey(processo.getNome());
+    }
+
+    public void adicionar(BCP processo) {
         tabela.put(processo.getNome(), processo);
+    }
+
+    public void remover(BCP processo) {
+        tabela.remove(processo.getNome());
     }
 }

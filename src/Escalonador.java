@@ -1,12 +1,12 @@
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Queue;
 
 public class Escalonador {
     // Estruturas de dados
     private Queue<BCP> filaProntos;
-    private List<BCP> filaBloqueados;
+    private List<BCP> listaBloqueados;
     private TabelaProcessos tabelaProcessos;
     private BCP processoExecutando;
 
@@ -23,15 +23,62 @@ public class Escalonador {
 
         // Linked List funciona melhor em filas
         this.filaProntos = new LinkedList<>();
-
-        // Vamos precisar ser array para facilitar nos decrementos
-        this.filaBloqueados = new ArrayList<>();
+        // Precisamos decrementar o tempo de espera em todos os elementos da lista de bloqueados
+        // LinkedList cria uma estrutura dinâmica, fácil de percorrer e de remover um elemento na n-ésima posição
+        this.listaBloqueados = new LinkedList<>();
         this.tabelaProcessos = new TabelaProcessos();
         this.processoExecutando = null;
     }
 
     public void run() {
-        // TODO
+        while (!tabelaProcessos.isEmpty()) {
+            if (filaProntos.isEmpty() && !listaBloqueados.isEmpty()) esperaProcessosBloqueados();
+
+            while (!filaProntos.isEmpty()) {
+                BCP processo = filaProntos.remove();
+                processo.setEstado(EstadoProcesso.EXECUTANDO);
+                processoExecutando = processo;
+
+                esperaProcessosBloqueados();
+
+                for (int i = 0; i < quantum; i++) {
+                    String comando = processo.proximoComando();
+
+                    switch (comando) {
+                        case "SAIDA":
+                            tabelaProcessos.remover(processo);
+                            i = quantum;
+                            break;
+                        case "E/S":
+                            processo.setEstado(EstadoProcesso.BLOQUEADO);
+                            listaBloqueados.add(processo);
+                            i = quantum;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (tabelaProcessos.existe(processo) && processo.getEstado() == EstadoProcesso.EXECUTANDO) {
+                    processo.setEstado(EstadoProcesso.PRONTO);
+                    filaProntos.add(processo);
+                }
+            }
+        }
+        processoExecutando = null;
+    }
+
+    private void esperaProcessosBloqueados() {
+        ListIterator<BCP> iterBloqueado = listaBloqueados.listIterator();
+        while(iterBloqueado.hasNext()){
+            BCP processoBloqueado = iterBloqueado.next();
+            processoBloqueado.esperar();
+
+            if (processoBloqueado.getEstado() == EstadoProcesso.PRONTO) {
+                iterBloqueado.remove();
+                filaProntos.add(processoBloqueado);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -46,7 +93,7 @@ public class Escalonador {
 
         for (List<String> programa : programas) {
             BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
-            escalonador.tabelaProcessos.add(bcp);
+            escalonador.tabelaProcessos.adicionar(bcp);
             escalonador.filaProntos.add(bcp);
             escalonador.totalProcessosCarregados++;
         }
