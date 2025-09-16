@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class BCP {
     private int pc = 0;
     private EstadoProcesso estado = EstadoProcesso.PRONTO;
@@ -12,5 +14,15 @@ public class BCP {
 
     public String getNome() {
         return this.nome;
+    }
+    @Override
+    public String toString() {
+        return "BCP{" +
+                "pc=" + pc +
+                ", estado=" + estado +
+                ", registradores=" + Arrays.toString(registradores) +
+                ", comandos=" + Arrays.toString(comandos) +
+                ", nome='" + nome + '\'' +
+                '}';
     }
 }

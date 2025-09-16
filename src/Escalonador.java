@@ -18,7 +18,9 @@ public class Escalonador {
     private int totalInstrucoesExecutadas = 0;
     private int totalProcessosCarregados = 0;
 
-    public Escalonador() {
+    public Escalonador(int quantum) {
+        this.quantum = quantum;
+
         // Linked List funciona melhor em filas
         this.filaProntos = new LinkedList<>();
 
@@ -28,17 +30,32 @@ public class Escalonador {
         this.processoExecutando = null;
     }
 
+    public void inicializar() {
+        List<List<String>> programas = LeitorPrograma.carregarProgramas();
+        System.out.println("Iniciando o Escalonador de Processos...");
+        for (List<String> programa : programas) {
+            System.out.println(programa + "|");
+            BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
+            this.tabelaProcessos.add(bcp);
+            this.filaProntos.add(bcp);
+            this.totalProcessosCarregados++;
+        }
+    }
+
     public void run() {
         // TODO
     }
 
     public static void main(String[] args) {
-        System.out.println("Iniciando o Escalonador de Processos...");
+        int quantum = LeitorPrograma.carregarQuantum();
 
         // 1. Cria a instância
-        Escalonador escalonador = new Escalonador();
+        Escalonador escalonador = new Escalonador(quantum);
 
-        // 2. Executa a simulação
+        // 2. Iniciar os programas na memória
+        escalonador.inicializar();
+
+        // 3. Executa a simulação
         escalonador.run();
 
         System.out.println("Todos os processos foram finalizados. Verifique o arquivo de log para detalhes.");
