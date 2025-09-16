@@ -9,4 +9,11 @@ public class TabelaProcessos {
     public void add(BCP processo) {
         tabela.put(processo.getNome(), processo);
     }
+
+    @Override
+    public String toString() {
+        return "TabelaProcessos{" +
+                "tabela=" + tabela +
+                '}';
+    }
 }

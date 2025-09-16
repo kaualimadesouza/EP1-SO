@@ -30,28 +30,32 @@ public class Escalonador {
         this.processoExecutando = null;
     }
 
+    public void inicializar() {
+        List<List<String>> programas = LeitorPrograma.carregarProgramas();
+        System.out.println("Iniciando o Escalonador de Processos...");
+        for (List<String> programa : programas) {
+            System.out.println(programa + "|");
+            BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
+            this.tabelaProcessos.add(bcp);
+            this.filaProntos.add(bcp);
+            this.totalProcessosCarregados++;
+        }
+    }
+
     public void run() {
         // TODO
     }
 
     public static void main(String[] args) {
-
-        List<List<String>> programas = LeitorPrograma.carregarProgramas();
         int quantum = LeitorPrograma.carregarQuantum();
-
-        System.out.println("Iniciando o Escalonador de Processos...");
 
         // 1. Cria a instância
         Escalonador escalonador = new Escalonador(quantum);
 
-        for (List<String> programa : programas) {
-            BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
-            escalonador.tabelaProcessos.add(bcp);
-            escalonador.filaProntos.add(bcp);
-            escalonador.totalProcessosCarregados++;
-        }
+        // 2. Iniciar os programas na memória
+        escalonador.inicializar();
 
-        // 2. Executa a simulação
+        // 3. Executa a simulação
         escalonador.run();
 
         System.out.println("Todos os processos foram finalizados. Verifique o arquivo de log para detalhes.");
