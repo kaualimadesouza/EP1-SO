@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LeitorPrograma {
-
     private static final String DIR_PATH = "programas";
     private static final Set<String> EXCLUDED_PATHS = Set.of("quantum.txt");
 
