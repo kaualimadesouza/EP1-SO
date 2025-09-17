@@ -20,5 +20,11 @@ public class TabelaProcessos {
 
     public void remover(BCP processo) {
         tabela.remove(processo.getNome());
+    
+    @Override
+    public String toString() {
+        return "TabelaProcessos{" +
+                "tabela=" + tabela +
+                '}';
     }
 }
