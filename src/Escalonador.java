@@ -36,7 +36,7 @@ public class Escalonador {
         for (List<String> programa : programas) {
             System.out.println(programa + "|");
             BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
-            this.tabelaProcessos.add(bcp);
+            this.tabelaProcessos.adicionar(bcp);
             this.filaProntos.add(bcp);
             this.totalProcessosCarregados++;
         }
