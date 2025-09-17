@@ -83,9 +83,10 @@ public class Escalonador {
                             break;
                     }
                 }
-                logger.log("Interrompendo " + processo.getNome() + " após " + i + (i == 1 ? " instrução" : " instruções"));
+                int instrucoesExecutadas = Math.min(quantum, i + 1);
+                logger.log("Interrompendo " + processo.getNome() + " após " + instrucoesExecutadas + (instrucoesExecutadas == 1 ? " instrução" : " instruções"));
                 totalTrocasDeProcesso++;
-                totalInstrucoesExecutadasPorQuantum+=i;
+                totalInstrucoesExecutadasPorQuantum+=instrucoesExecutadas;
                 totalQuantumRodados++;
 
                 if (tabelaProcessos.existe(processo) && processo.getEstado() == EstadoProcesso.EXECUTANDO) {
