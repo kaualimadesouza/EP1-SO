@@ -10,7 +10,7 @@ public class Logger {
     private final List<String> logs = new LinkedList<>();
     private static Logger instance;
 
-    public Logger() {}
+    private Logger() {}
 
     public static Logger getInstance() {
         if (instance == null) {
