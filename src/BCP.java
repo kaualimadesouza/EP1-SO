@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class BCP {
     private static final int TEMPO_ESPERA_BLOQUEADO = 2;
     private int pc = 0;
