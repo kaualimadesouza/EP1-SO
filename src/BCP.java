@@ -3,7 +3,7 @@ public class BCP {
     private int pc = 0;
     private int espera = 0;
     private EstadoProcesso estado = EstadoProcesso.PRONTO;
-    private Registrador[] registradores;
+    private final Registrador[] registradores = { new Registrador(ChaveRegistrador.X, 0), new Registrador(ChaveRegistrador.Y, 0)};
     private final String[] comandos;
     private final String nome;
 
@@ -18,6 +18,10 @@ public class BCP {
 
     public EstadoProcesso getEstado() {
         return estado;
+    }
+
+    public Registrador[] getRegistradores() {
+        return registradores;
     }
 
     public void setEstado(EstadoProcesso estado) {

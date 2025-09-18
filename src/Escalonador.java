@@ -1,7 +1,9 @@
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class Escalonador {
     // Estruturas de dados
@@ -15,8 +17,11 @@ public class Escalonador {
 
     // Atributos para Estatísticas Finais
     private int totalTrocasDeProcesso = 0;
-    private int totalInstrucoesExecutadas = 0;
+    private int totalInstrucoesExecutadasPorQuantum = 0;
     private int totalProcessosCarregados = 0;
+    private int totalQuantumRodados = 0;
+
+    private final Logger logger = Logger.getInstance();
 
     public Escalonador(int quantum) {
         this.quantum = quantum;
@@ -34,11 +39,12 @@ public class Escalonador {
         List<List<String>> programas = LeitorPrograma.carregarProgramas();
         System.out.println("Iniciando o Escalonador de Processos...");
         for (List<String> programa : programas) {
-            System.out.println(programa + "|");
-            BCP bcp = new BCP(programa.getFirst(), programa.toArray(new String[0]));
+            BCP bcp = new BCP(programa.getFirst(), programa.subList(1, programa.size()).toArray(new String[0]));
             this.tabelaProcessos.adicionar(bcp);
             this.filaProntos.add(bcp);
             this.totalProcessosCarregados++;
+
+            logger.log("Carregando " + bcp.getNome());
         }
     }
 
@@ -50,26 +56,38 @@ public class Escalonador {
                 BCP processo = filaProntos.remove();
                 processo.setEstado(EstadoProcesso.EXECUTANDO);
                 processoExecutando = processo;
+                logger.log("Executando " + processo.getNome());
 
                 esperaProcessosBloqueados();
 
-                for (int i = 0; i < quantum; i++) {
+                int i;
+                quantum_loop: for (i = 0; i < quantum; i++) {
                     String comando = processo.proximoComando();
 
-                    switch (comando) {
+                    switch (comando.split("=")[0]) {
                         case "SAIDA":
+                            logger.log(processo.getNome() + " terminado. " + Arrays.stream(processo.getRegistradores()).map(r -> r.getChave() + "=" + r.getValor()).collect(Collectors.joining(". ")));
                             tabelaProcessos.remover(processo);
-                            i = quantum;
-                            break;
+                            break quantum_loop;
                         case "E/S":
+                            logger.log("E/S iniciada em " + processo.getNome());
                             processo.setEstado(EstadoProcesso.BLOQUEADO);
                             listaBloqueados.add(processo);
-                            i = quantum;
+                            break quantum_loop;
+                        case "X":
+                        case "Y":
+                            for (Registrador r : processo.getRegistradores())
+                                r.setValor(Integer.parseInt(comando.split("=")[1]));
                             break;
                         default:
                             break;
                     }
                 }
+                int instrucoesExecutadas = Math.min(quantum, i + 1);
+                logger.log("Interrompendo " + processo.getNome() + " após " + instrucoesExecutadas + (instrucoesExecutadas == 1 ? " instrução" : " instruções"));
+                totalTrocasDeProcesso++;
+                totalInstrucoesExecutadasPorQuantum+=instrucoesExecutadas;
+                totalQuantumRodados++;
 
                 if (tabelaProcessos.existe(processo) && processo.getEstado() == EstadoProcesso.EXECUTANDO) {
                     processo.setEstado(EstadoProcesso.PRONTO);
@@ -77,6 +95,11 @@ public class Escalonador {
                 }
             }
         }
+
+        logger.log("MEDIA DE TROCAS: %.1f".formatted((double) totalTrocasDeProcesso / totalProcessosCarregados));
+        logger.log("MEDIA DE INSTRUCOES: %.1f".formatted((double) totalInstrucoesExecutadasPorQuantum / totalQuantumRodados));
+        logger.log("QUANTUM: " + quantum);
+        logger.exportar("log" + String.format("%02d", quantum) + ".txt");
         processoExecutando = null;
     }
 
@@ -94,7 +117,7 @@ public class Escalonador {
     }
 
     public static void main(String[] args) {
-        int quantum = LeitorPrograma.carregarQuantum();
+        int quantum = Math.max(1, Math.min(21, LeitorPrograma.carregarQuantum()));
 
         // 1. Cria a instância
         Escalonador escalonador = new Escalonador(quantum);

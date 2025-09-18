@@ -1,3 +1,6 @@
+### EP out ###
+log*.txt
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
